@@ -1,7 +1,9 @@
 package controllers;
 
 import com.google.gson.Gson;
+import models.IdsAndRules;
 import models.Product;
+import models.RuleIntegration;
 import play.mvc.Controller;
 import play.mvc.Result;
 import services.ProductService;
@@ -22,15 +24,45 @@ public class ProductController extends Controller {
 
     // Just update the set of products in DB to be crawled through register api.
     public Result register(Long prodId) {
-        productService.insertProductsToBeCrawled(prodId);
+
         String emailId = request().body().asJson().findPath("emailId").asText();
-        userService.registerProduct(prodId,emailId);
+        String key = request().body().asJson().findPath("key").asText();
+        String operator = request().body().asJson().findPath("operator").asText();
+        Double value = request().body().asJson().findPath("value").asDouble();
+        RuleIntegration ruleIntegration = new RuleIntegration();
+        ruleIntegration.setKey(key);
+        ruleIntegration.setOperator(operator);
+        ruleIntegration.setValue(value);
+        List<RuleIntegration> rules = new ArrayList<>();
+        rules.add(ruleIntegration);
+        IdsAndRules idsAndRules = new IdsAndRules();
+        idsAndRules.setProdId(prodId);
+        if(idsAndRules.getRuleIntegrations() == null){
+            idsAndRules.setRuleIntegrations(rules);
+            List<IdsAndRules> join = new ArrayList<>();
+            join.add(idsAndRules);
+        }
+        else {
+            idsAndRules.getRuleIntegrations().add(ruleIntegration);
+        }
+        productService.insertProductsToBeCrawled(prodId);
+        userService.registerProduct(emailId,idsAndRules);
         return ok("Request sent to service");
     }
 
     public Result unregister(Long prodId) {
         String emailId = request().body().asJson().findPath("emailId").asText();
-        userService.unregisterProduct(prodId,emailId);
+        String key = request().body().asJson().findPath("key").asText();
+        String operator = request().body().asJson().findPath("operator").asText();
+        Double value = request().body().asJson().findPath("value").asDouble();
+        RuleIntegration ruleIntegration = new RuleIntegration();
+        ruleIntegration.setKey(key);
+        ruleIntegration.setOperator(operator);
+        ruleIntegration.setValue(value);
+        IdsAndRules idsAndRules = new IdsAndRules();
+        idsAndRules.setProdId(prodId);
+        idsAndRules.getRuleIntegrations().add(ruleIntegration);
+        userService.unregisterProduct(emailId,idsAndRules);
         return ok(prodId + " unregistered from your list.");
     }
 

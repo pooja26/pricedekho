@@ -16,21 +16,21 @@ public class User {
     @Id
     private ObjectId id;
 
+    private Long prodId;
+
     private String name;
 
     private String emailId;
 
-    List<Long> prodIds;
-
     @Embedded
-    List<RuleIntegration> rules;
+    private List<IdsAndRules> idsAndRules;
 
-    public ObjectId getId() {
-        return id;
+    public Long getProdId() {
+        return prodId;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
+    public void setProdId(Long prodId) {
+        this.prodId = prodId;
     }
 
     public String getName() {
@@ -49,19 +49,11 @@ public class User {
         this.emailId = emailId;
     }
 
-    public List<Long> getProdIds() {
-        return prodIds;
+    public List<IdsAndRules> getIdsAndRules() {
+        return idsAndRules;
     }
 
-    public void setProdIds(List<Long> prodIds) {
-        this.prodIds = prodIds;
-    }
-
-    public List<RuleIntegration> getRules() {
-        return rules;
-    }
-
-    public void setRules(List<RuleIntegration> rules) {
-        this.rules = rules;
+    public void setIdsAndRules(List<IdsAndRules> idsAndRules) {
+        this.idsAndRules = idsAndRules;
     }
 }

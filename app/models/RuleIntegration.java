@@ -1,5 +1,6 @@
 package models;
 
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -9,14 +10,14 @@ import org.mongodb.morphia.annotations.Id;
 @Entity
 public class RuleIntegration {
 
-    String operator;
-
-    String key;
-
-    Double value;
-
     @Id
-    Long prodId;
+    private ObjectId id;
+
+    private String operator;
+
+    private String key;
+
+    private  Double value;
 
     public String getOperator() {
         return operator;
@@ -42,11 +43,4 @@ public class RuleIntegration {
         this.value = value;
     }
 
-    public Long getProdId() {
-        return prodId;
-    }
-
-    public void setProdId(Long prodId) {
-        this.prodId = prodId;
-    }
 }

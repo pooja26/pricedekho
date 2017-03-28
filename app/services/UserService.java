@@ -1,5 +1,6 @@
 package services;
 
+import models.IdsAndRules;
 import models.Product;
 import models.User;
 import org.mongodb.morphia.query.Query;
@@ -24,24 +25,26 @@ public class UserService {
         return user;
     }
 
-    public void registerProduct(Long prodId,String emailId){
+    public void registerProduct(String emailId, IdsAndRules idsAndRules){
         //registeredProdIds = getUser();
+
         User user = getUser(emailId);
         if(user != null) {
-            if(user.getProdIds() != null && !user.getProdIds().contains(prodId)) {
-                user.getProdIds().add(prodId);
-            } else {
-                List<Long> prodIds = new ArrayList<>();
-                prodIds.add(prodId);
-                user.setProdIds(prodIds);
+            if(user.getIdsAndRules() != null && !user.getIdsAndRules().contains(idsAndRules)) {
+                user.getIdsAndRules().add(idsAndRules);
             }
 
         } else {
             user = new User();
-            List<Long> prodIds = new ArrayList<>();
-            prodIds.add(prodId);
-            user.setProdIds(prodIds);
             user.setEmailId(emailId);
+            if(user.getIdsAndRules() == null){
+                List<IdsAndRules> join = new ArrayList<>();
+                join.add(idsAndRules);
+                user.setIdsAndRules(join);
+            }
+            else {
+                user.getIdsAndRules().add(idsAndRules);
+            }
         }
 
         MongoConfig.getDB().save(user);
@@ -85,11 +88,11 @@ public class UserService {
         return  filteredProducts;
     }
 
-    public void unregisterProduct(Long prodId,String emailId){
+    public void unregisterProduct(String emailId,IdsAndRules idsAndRules){
         query = MongoConfig.getDB().createQuery(User.class).disableValidation();
         User user = query.field("emailId").equal(emailId).get();
-        if(user.getProdIds().contains(prodId)){
-            user.getProdIds().remove(prodId);
+        if(user.getIdsAndRules().contains(idsAndRules)){
+            user.getIdsAndRules().add(idsAndRules);
             MongoConfig.getDB().save(user);
         }
 
