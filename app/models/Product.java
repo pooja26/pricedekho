@@ -24,6 +24,8 @@ public class Product {
 
     double discountedPrice;
 
+    double discount;
+
     @Embedded
     List<SkuInventory> sku;
 
@@ -57,6 +59,14 @@ public class Product {
 
     public void setDiscountedPrice(double discountedPrice) {
         this.discountedPrice = discountedPrice;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
     }
 
     public List<SkuInventory> getSku() {

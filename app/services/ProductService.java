@@ -28,7 +28,6 @@ public class ProductService {
     public List<CrawlProduct> getAllCrawlProducts() {
         if (crawlProductQuery == null)
             crawlProductQuery = MongoConfig.getDB().createQuery(CrawlProduct.class).disableValidation();
-
         return crawlProductQuery.asList();
     }
 

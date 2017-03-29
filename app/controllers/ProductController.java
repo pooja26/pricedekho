@@ -1,5 +1,8 @@
 package controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import models.IdsAndRules;
 import models.Product;
@@ -8,8 +11,8 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import services.ProductService;
 import services.UserService;
-import services.actors.ScheduledCrawler;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,36 +22,40 @@ import java.util.List;
 public class ProductController extends Controller {
 
 
-    private ProductService productService = new ProductService();
-    private UserService userService = new UserService();
+    @Inject
+    private ProductService productService;
+
+    @Inject
+    private UserService userService;
 
     // Just update the set of products in DB to be crawled through register api.
-    public Result register(Long prodId) {
+    public Result register(Long prodId) throws JsonProcessingException {
 
         String emailId = request().body().asJson().findPath("emailId").asText();
-        String key = request().body().asJson().findPath("key").asText();
-        String operator = request().body().asJson().findPath("operator").asText();
-        Double value = request().body().asJson().findPath("value").asDouble();
-        RuleIntegration ruleIntegration = new RuleIntegration();
-        ruleIntegration.setKey(key);
-        ruleIntegration.setOperator(operator);
-        ruleIntegration.setValue(value);
-        List<RuleIntegration> rules = new ArrayList<>();
-        rules.add(ruleIntegration);
+        JsonNode idsAndRules1 = request().body().asJson().findPath("ruleIntegration");
+        ObjectMapper mapper = new ObjectMapper();
+        List<RuleIntegration> ruleIntegrationList = mapper.treeToValue(idsAndRules1,new ArrayList<RuleIntegration>().getClass());
+        productService.insertProductsToBeCrawled(prodId);
         IdsAndRules idsAndRules = new IdsAndRules();
         idsAndRules.setProdId(prodId);
-        if(idsAndRules.getRuleIntegrations() == null){
-            idsAndRules.setRuleIntegrations(rules);
-            List<IdsAndRules> join = new ArrayList<>();
-            join.add(idsAndRules);
-        }
-        else {
-            idsAndRules.getRuleIntegrations().add(ruleIntegration);
-        }
-        productService.insertProductsToBeCrawled(prodId);
+        idsAndRules.setRuleIntegrations(ruleIntegrationList);
         userService.registerProduct(emailId,idsAndRules);
         return ok("Request sent to service");
     }
+
+    public Result update(Long prodId) throws JsonProcessingException {
+
+        String emailId = request().body().asJson().findPath("emailId").asText();
+        JsonNode ruleListJsonNode = request().body().asJson().findPath("ruleIntegration");
+        ObjectMapper mapper = new ObjectMapper();
+        List<RuleIntegration> ruleIntegrationList = mapper.treeToValue(ruleListJsonNode,new ArrayList<RuleIntegration>().getClass());
+        IdsAndRules idsAndRules = new IdsAndRules();
+        idsAndRules.setProdId(prodId);
+        idsAndRules.setRuleIntegrations(ruleIntegrationList);
+        userService.updateProduct(emailId,idsAndRules);
+        return ok("Request sent to service");
+    }
+
 
     public Result unregister(Long prodId) {
         String emailId = request().body().asJson().findPath("emailId").asText();
@@ -71,13 +78,6 @@ public class ProductController extends Controller {
         List<Product> list = productService.getListFromRange(prodId,startDate,endDate);
         return ok(new Gson().toJson(list, new ArrayList<Product>().getClass()));
     }
-
-    //TODO: Remove this in future
-    public Result scheduleCrawl() {
-        new ScheduledCrawler();
-        return ok("Crawler is up");
-    }
-
 
     // Get all products to be crawled.
 

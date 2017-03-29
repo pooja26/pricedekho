@@ -11,7 +11,9 @@ GET     /message                    controllers.AsyncController.message
 
 GET     /scheduleCrawl              controllers.ProductController.scheduleCrawl
 
-POST     /register/:prodId                      controllers.ProductController.register(prodId:Long)
+POST     /register/:prodId          controllers.ProductController.register(prodId:Long)
+
+PUT      /update/:prodId            controllers.ProductController.update(prodId:Long)
 
 POST     /unregister/:prodId                     controllers.ProductController.unregister(prodId:Long)
 

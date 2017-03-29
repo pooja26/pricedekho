@@ -18,52 +18,51 @@ public class UserService {
 
     private User user = new User();
 
-    public User getUser(String emailId){
+    public User getUser(String emailId) {
 
         query = MongoConfig.getDB().createQuery(User.class).disableValidation();
         User user = query.field("emailId").equal(emailId).get();
         return user;
     }
 
-    public void registerProduct(String emailId, IdsAndRules idsAndRules){
-        //registeredProdIds = getUser();
+    public void registerProduct(String emailId, IdsAndRules idsAndRules) {
 
         User user = getUser(emailId);
-        if(user != null) {
-            if(user.getIdsAndRules() != null && !user.getIdsAndRules().contains(idsAndRules)) {
+        if (user != null) {
+            if (user.getIdsAndRules() != null && !user.getIdsAndRules().contains(idsAndRules)) {
                 user.getIdsAndRules().add(idsAndRules);
             }
 
         } else {
             user = new User();
             user.setEmailId(emailId);
-            if(user.getIdsAndRules() == null){
-                List<IdsAndRules> join = new ArrayList<>();
-                join.add(idsAndRules);
-                user.setIdsAndRules(join);
-            }
-            else {
-                user.getIdsAndRules().add(idsAndRules);
-            }
+            List<IdsAndRules> idsAndRulesList = new ArrayList<>();
+            idsAndRulesList.add(idsAndRules);
+            user.setIdsAndRules(idsAndRulesList);
         }
-
         MongoConfig.getDB().save(user);
     }
 
-    public void getAllProductsOfAUser(String emailId){
-        if (query == null){
-            query = MongoConfig.getDB().createQuery(User.class).disableValidation();
-        }
-        User user = query.field("emailId ").equal(emailId).retrievedFields(true,"registeredIds").get();
+    public void updateProduct(String emailId, IdsAndRules idsAndRules) {
+        query = MongoConfig.getDB().createQuery(User.class).disableValidation();
+        User user = query.field("emailId").equal(emailId).filter("idsAndRules.prodId", idsAndRules.getProdId()).get();
+        System.out.println(user.getIdsAndRules());
     }
 
-    public List<Product> getFilteredProduct(Long prodId,String operator,String key,Double value){
+    public void getAllProductsOfAUser(String emailId) {
+        if (query == null) {
+            query = MongoConfig.getDB().createQuery(User.class).disableValidation();
+        }
+        User user = query.field("emailId").equal(emailId).retrievedFields(true, "registeredIds").get();
+    }
+
+    public List<Product> getFilteredProduct(Long prodId, String operator, String key, Double value) {
         Query<Product> queryProd = null;
-        List<Product> filteredProducts=null;
-        if (query == null){
+        List<Product> filteredProducts = null;
+        if (query == null) {
             queryProd = MongoConfig.getDB().createQuery(Product.class).disableValidation();
         }
-        if(key.equals("discount")){
+        if (key.equals("discount")) {
             Product calcDiscount = queryProd.field("id").equal(prodId).get();
             Double price = calcDiscount.getPrice();
             Double discountedPrice = calcDiscount.getDiscountedPrice();
@@ -71,27 +70,27 @@ public class UserService {
 
         } else {
             queryProd.field("id").equal(prodId);
-            if(operator.equals(">")){
+            if (operator.equals(">")) {
                 queryProd.field(key).greaterThan(value);
             }
-            if(operator.equals(">=")){
+            if (operator.equals(">=")) {
                 queryProd.field(key).greaterThanOrEq(value);
             }
-            if(operator.equals("<=")){
+            if (operator.equals("<=")) {
                 queryProd.field(key).lessThanOrEq(value);
             }
-            if(operator.equals("<")){
+            if (operator.equals("<")) {
                 queryProd.field(key).lessThan(value);
             }
             filteredProducts = queryProd.asList();
         }
-        return  filteredProducts;
+        return filteredProducts;
     }
 
-    public void unregisterProduct(String emailId,IdsAndRules idsAndRules){
+    public void unregisterProduct(String emailId, IdsAndRules idsAndRules) {
         query = MongoConfig.getDB().createQuery(User.class).disableValidation();
         User user = query.field("emailId").equal(emailId).get();
-        if(user.getIdsAndRules().contains(idsAndRules)){
+        if (user.getIdsAndRules().contains(idsAndRules)) {
             user.getIdsAndRules().add(idsAndRules);
             MongoConfig.getDB().save(user);
         }
