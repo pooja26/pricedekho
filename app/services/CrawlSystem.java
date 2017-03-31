@@ -31,7 +31,7 @@ public class CrawlSystem {
         ActorRef crawlActorRef = crawlSystem.actorOf(crawlActorProp,
                 "crawlActor");
         Logger.info("Crawler Initiated");
-        crawlSystem.scheduler().schedule(Duration.Zero(),
+        crawlSystem.scheduler().schedule(Duration.create(30,TimeUnit.SECONDS),
                 Duration.create(30, TimeUnit.SECONDS),
                 crawlActorRef, "run ",
                 crawlSystem.dispatcher(), null);

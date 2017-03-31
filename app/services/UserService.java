@@ -4,6 +4,9 @@ import models.IdsAndRules;
 import models.Product;
 import models.User;
 import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
+import play.Logger;
 import util.MongoConfig;
 
 import java.util.ArrayList;
@@ -29,10 +32,14 @@ public class UserService {
 
         User user = getUser(emailId);
         if (user != null) {
-            if (user.getIdsAndRules() != null && !user.getIdsAndRules().contains(idsAndRules)) {
+            if(user.getIdsAndRules() == null) {
+                List<IdsAndRules> idsAndRulesList = new ArrayList<>();
+                idsAndRulesList.add(idsAndRules);
+                user.setIdsAndRules(idsAndRulesList);
+            }
+            else if (user.getIdsAndRules() != null && !user.getIdsAndRules().contains(idsAndRules)) {
                 user.getIdsAndRules().add(idsAndRules);
             }
-
         } else {
             user = new User();
             user.setEmailId(emailId);
@@ -45,8 +52,11 @@ public class UserService {
 
     public void updateProduct(String emailId, IdsAndRules idsAndRules) {
         query = MongoConfig.getDB().createQuery(User.class).disableValidation();
-        User user = query.field("emailId").equal(emailId).filter("idsAndRules.prodId", idsAndRules.getProdId()).get();
-        System.out.println(user.getIdsAndRules());
+        UpdateOperations<User>updateOperations = MongoConfig.getDB().createUpdateOperations
+                (User.class).set("idsAndRules.$.ruleIntegrations",idsAndRules.getRuleIntegrations());
+        UpdateResults updateResults = MongoConfig.getDB().update(query.filter("emailId",emailId)
+                .filter("idsAndRules.prodId",idsAndRules.getProdId()),updateOperations);
+        Logger.debug("Update results: ",updateResults);
     }
 
     public void getAllProductsOfAUser(String emailId) {
