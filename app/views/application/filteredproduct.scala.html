@@ -1,0 +1,16 @@
+
+@(emailId: String, productList: List[Product])
+
+<html lang="en">
+    <head>
+    </head>
+    <body>
+        <p>Hi @emailId,</p><br />
+        <p>Here are the products which have matched your conditions:</p>
+        <ul>
+        @for(product <- productList) {
+            <li>https://www.myntra.com/@product.getId()</li>
+        }
+        </ul>
+    </body>
+</html>

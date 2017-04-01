@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.CrawlProduct;
 import models.Product;
 import models.SkuInventory;
+import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -39,7 +40,7 @@ public class CrawlActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) throws Throwable {
-        System.out.println("Crawl run: " + crawlRun++);
+        Logger.info("Crawl run: " + crawlRun++);
         ArrayList<CrawlProduct> productList = (ArrayList<CrawlProduct>) productService.getAllCrawlProducts();
         productList.forEach(crawlProduct -> {
             Long productId = crawlProduct.getProductId();

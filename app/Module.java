@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule;
-import services.CrawlSystem;
+import services.SchedulerSystem;
 import services.*;
 
 import java.time.Clock;
@@ -26,9 +26,10 @@ public class Module extends AbstractModule {
         // Set AtomicCounter as the implementation for Counter.
         bind(Counter.class).to(AtomicCounter.class);
 
+        bind(MailingService.class).asEagerSingleton();
         bind(UserService.class).asEagerSingleton();
         bind(ProductService.class).asEagerSingleton();
-        bind(CrawlSystem.class).asEagerSingleton();
+        bind(SchedulerSystem.class).asEagerSingleton();
     }
 
 }
