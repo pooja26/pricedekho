@@ -27,7 +27,8 @@ public class MailingService {
         StringBuilder emailContent = new StringBuilder();
         content.buildString(emailContent);
         Email email = new Email()
-                .setSubject("PriceDekho Product List")
+                .setSubject("Priceous Product List")
+                .setFrom("bunty.hari@gmail.com")
                 .addTo(emailId)
                 .setBodyHtml(emailContent.toString());
         mailerClient.send(email);

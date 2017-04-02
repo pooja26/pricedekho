@@ -55,10 +55,13 @@ public class UserService {
 
     public void updateProduct(String emailId, IdsAndRules idsAndRules) {
         query = MongoConfig.getDB().createQuery(User.class).disableValidation();
-        UpdateOperations<User>updateOperations = MongoConfig.getDB().createUpdateOperations
-                (User.class).set("idsAndRules.$.ruleIntegrations",idsAndRules.getRuleIntegrations());
-        UpdateResults updateResults = MongoConfig.getDB().update(query.filter("emailId",emailId)
-                .filter("idsAndRules.prodId",idsAndRules.getProdId()),updateOperations);
+        query.filter("emailId",emailId);
+        UpdateOperations<User>updateOperations = MongoConfig.getDB().createUpdateOperations(User.class)
+                .set("idsAndRules.$.ruleIntegrations",idsAndRules.getRuleIntegrations())
+                .set("idsAndRules.$.logicalOperator",idsAndRules.getLogicalOperator());
+        UpdateResults updateResults = MongoConfig.getDB().update(
+                query.filter("idsAndRules.prodId",idsAndRules.getProdId())
+                ,updateOperations);
         Logger.debug("Update results: ",updateResults);
     }
 

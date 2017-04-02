@@ -14,6 +14,8 @@ public class IdsAndRules {
 
     private Long prodId;
 
+    private String logicalOperator;
+
     private List<RuleIntegration> ruleIntegrations;
 
     public ObjectId getId() {
@@ -38,5 +40,13 @@ public class IdsAndRules {
 
     public void setRuleIntegrations(List<RuleIntegration> ruleIntegrations) {
         this.ruleIntegrations = ruleIntegrations;
+    }
+
+    public String getLogicalOperator() {
+        return logicalOperator;
+    }
+
+    public void setLogicalOperator(String logicalOperator) {
+        this.logicalOperator = logicalOperator;
     }
 }

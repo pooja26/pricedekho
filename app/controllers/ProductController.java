@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -32,13 +33,16 @@ public class ProductController extends Controller {
     public Result register(Long prodId) throws JsonProcessingException {
 
         String emailId = request().body().asJson().findPath("emailId").asText();
+        String operator = request().body().asJson().findPath("condition").asText();
         JsonNode idsAndRules1 = request().body().asJson().findPath("ruleIntegration");
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,false);
         List<RuleIntegration> ruleIntegrationList = mapper.treeToValue(idsAndRules1,new ArrayList<RuleIntegration>().getClass());
         productService.insertProductsToBeCrawled(prodId);
         IdsAndRules idsAndRules = new IdsAndRules();
         idsAndRules.setProdId(prodId);
         idsAndRules.setRuleIntegrations(ruleIntegrationList);
+        idsAndRules.setLogicalOperator(operator);
         userService.registerProduct(emailId,idsAndRules);
         return ok("Request sent to service");
     }
@@ -46,12 +50,15 @@ public class ProductController extends Controller {
     public Result update(Long prodId) throws JsonProcessingException {
 
         String emailId = request().body().asJson().findPath("emailId").asText();
+        String operator = request().body().asJson().findPath("condition").asText();
         JsonNode ruleListJsonNode = request().body().asJson().findPath("ruleIntegration");
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,false);
         List<RuleIntegration> ruleIntegrationList = mapper.treeToValue(ruleListJsonNode,new ArrayList<RuleIntegration>().getClass());
         IdsAndRules idsAndRules = new IdsAndRules();
         idsAndRules.setProdId(prodId);
         idsAndRules.setRuleIntegrations(ruleIntegrationList);
+        idsAndRules.setLogicalOperator(operator);
         userService.updateProduct(emailId,idsAndRules);
         return ok("Request sent to service");
     }

@@ -24,6 +24,7 @@ public class MongoConfig {
     private static void ensureIndexes(){
         morphia.mapPackage("models");
         datastore.ensureIndexes();
+
     }
 
     public static Datastore getDB(){

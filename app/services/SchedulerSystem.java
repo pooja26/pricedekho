@@ -3,6 +3,7 @@ package services;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import org.apache.commons.lang3.time.DateUtils;
 import play.Logger;
 import play.libs.ws.WSClient;
 import scala.concurrent.duration.Duration;
@@ -11,6 +12,7 @@ import services.actors.RuleFilterActor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,23 +21,13 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class SchedulerSystem {
 
-    WSClient wsClient;
-
-    ProductService productService;
-
-    UserService userService;
-
-    MailingService mailingService;
 
     @Inject
-    public SchedulerSystem(WSClient wsClient, ProductService productService, UserService userService, MailingService mailingService) {
-        this.wsClient = wsClient;
-        this.productService = productService;
-        this.userService = userService;
-        this.mailingService = mailingService;
+    public SchedulerSystem(WSClient wsClient, ProductService productService, UserService userService,
+                           MailingService mailingService, DateUtils dateUtils, Date date) {
         ActorSystem actorSystem = ActorSystem.create("Crawler");
-        Props crawlActorProp = Props.create(CrawlActor.class, wsClient, productService);
-        Props ruleFilterActorProp = Props.create(RuleFilterActor.class, userService, mailingService);
+        Props crawlActorProp = Props.create(CrawlActor.class, wsClient, productService, date);
+        Props ruleFilterActorProp = Props.create(RuleFilterActor.class, userService, mailingService, dateUtils);
         ActorRef crawlActorRef = actorSystem.actorOf(crawlActorProp,
                 "crawlActor");
         ActorRef ruleFilterActorRef = actorSystem.actorOf(ruleFilterActorProp,

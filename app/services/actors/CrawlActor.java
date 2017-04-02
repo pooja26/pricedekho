@@ -28,13 +28,16 @@ public class CrawlActor extends UntypedActor {
 
     private long crawlRun;
 
+    private Date date;
+
     private static final String urlPrefix = "http://developer.myntra.com/style/";
 
     @Inject
-    public CrawlActor(WSClient wsClient, ProductService productService) {
+    public CrawlActor(WSClient wsClient, ProductService productService, Date date) {
         this.wsClient = wsClient;
         this.productService = productService;
         this.crawlRun = 1;
+        this.date = date;
     }
 
 
@@ -50,7 +53,6 @@ public class CrawlActor extends UntypedActor {
             responsePromise.thenApply(WSResponse::asJson);
             responsePromise.whenComplete((response, throwable) -> {
                 Product product = new Product();
-                Date date = new Date();
                 Long time = date.getTime();
                 JsonNode jsonNode = response.asJson();
                 JsonNode data = jsonNode.findPath("data");
